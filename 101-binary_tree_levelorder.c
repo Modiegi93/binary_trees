@@ -1,65 +1,62 @@
 #include "binary_trees.h"
 
 /**
+ * binary_tree_size - measures the size of a binary tree
+ * @tree: pointer to the root node of the tree
+ * to measure the size
+ *
+ * Return: The size of a binary tree,
+ * otherwise 0 if tree is NULL
+ */
+size_t binary_tree_size(const binary_tree_t *tree)
+{
+	if (tree == NULL)
+		return (0);
+
+	return (binary_tree_size(tree->left) + 1 + binary_tree_size(tree->right));
+}
+
+/**
  * binary_tree_levelorder - goes through a binary tree using
  * level-order traversal
- * @tree: a pointer to the root node of the tree to traverse
- * @func: a pointer to a function to call for each node
+ * @tree: pointer to the root node of the tree to traverse
+ * @func: pointer to a function to call for each node
  *
  * Return: Nothing
  */
 void binary_tree_levelorder(const binary_tree_t *tree, void (*func)(int))
 {
-	int height = binary_tree_height(tree);
-	int level;
+	const binary_tree_t **queue;
+	const binary_tree_t *node;
+	int front, back;
 
 	if (tree == NULL || func == NULL)
 		return;
 
-	for (level = 1; level <= height + 1; level++)
-		binary_tree_traverse_level(tree, level, func);
-}
-
-/**
- * binary_tree_height - calculates the height of a binary tree
- * @tree: a pointer to the root node of the tree to calculate
- * the height of
- *
- * Return: The height of the tree
- */
-int binary_tree_height(const binary_tree_t *tree)
-{
-	if (tree == NULL)
-		return (-1);
-
-	int left_height = binary_tree_height(tree->left);
-	int right_height = binary_tree_height(tree->right);
-
-	if (left_height > right_height)
-		return (left_height + 1);
-	else
-		return (right_height + 1);
-}
-
-/**
- * binary_tree_traverse_level - traverses a level of a binary tree
- * @tree: a pointer to the root node of the tree to traverse
- * @level: the level to traverse
- * @func: a pointer to a function to call for each node
- *
- * Return: Nothing
- */
-void binary_tree_traverse_level(const binary_tree_t *tree, int level,
-	       void (*func)(int))
-{
-	if (tree == NULL)
+	queue = malloc(sizeof(binary_tree_t *) * binary_tree_size(tree));
+	if (queue == NULL)
 		return;
 
-	if (level == 1)
-		func(tree->n);
-	else if (level > 1)
+	front = 0;
+	back = 0;
+	queue[back++] = tree;
+
+	while (front < back)
 	{
-		binary_tree_traverse_level(tree->left, level - 1, func);
-		binary_tree_traverse_level(tree->right, level - 1, func);
+		node = queue[front++];
+
+		func(node->n);
+
+		if (node->left != NULL)
+		{
+			queue[back++] = node->left;
+		}
+
+		if (node->right != NULL)
+		{
+			queue[back++] = node->right;
+		}
 	}
+
+	free(queue);
 }
